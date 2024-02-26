@@ -1,2 +1,12 @@
 - Explain the order of execution in terms of the event loop for eventloop/immediate.js.
 - Will the order of execution change if timeout is changed to 0? Why or why not?
+
+the expected order of execution inside the eventloop/immediate.js. callback will be:
+1. Synchronous delay (while loop).
+2. The `setTimeout` callback logs after a delay of approximately 5ms from when it was scheduled. However, due to the event loop's operation, this will happen after the synchronous code and potentially after the`setImmediate` callback, depending on when the timer expires relative to the event loop cycle.
+3. The `setImmediate` callback is likely to execute immediately after the I/O callbacks are processed, and before or at the same time as timer callbacks depending on the timing and event loop phase transitions.
+
+If Timeout is Changed to 0
+Changing the `setTimeout` delay to 0 doesn't necessarily change the order of execution significantly in this context because `setTimeout(..., 0)` and `setImmediate()` are closely related in terms of when they execute. 
+Both are essentially deferred to the next loop iteration, but their execution relative to each other can be influenced by the specifics of the event loop's current phase and workloads. Generally, `setImmediate()` is designed to execute after I/O events of the current phase and before timers set by `setTimeout` in the check phase. 
+However, a `setTimeout(..., 0)` can sometimes execute before `setImmediate()` depending on when each is scheduled and the current phase of the event loop.

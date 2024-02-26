@@ -1,1 +1,24 @@
 - In eventloop/timer.js, what will be the order of execution? Briefly explain the order of execution w.r.t the event loop phases.
+
+The order of console logs will be:
+foo
+baz
+foo
+baz
+2 : bar
+1 : bar
+
+the order of execution:
+
+1. Call `foo(2)`
+Immediately logs "foo" to the console.
+Schedules bar(2) to run after a minimum delay (0 ms), but it's queued in the Timer phase to be checked after the current script has finished executing and the event loop ticks.
+Calls baz(), logging "baz" to the console.
+
+2. Call `foo(1)`
+Immediately logs "foo" to the console.
+Schedules bar(1) to run after a minimum delay (0 ms), adding it to the Timer queue, which already has bar(2) pending from the first foo(2) call.
+Calls baz(), logging "baz" to the console.
+
+3. Event Loop Processing
+After the main script finishes executing, the event loop checks the Timers phase. Since both bar(2) and bar(1) were scheduled with a delay of 0 ms, they are both due to execute as soon as possible. However, they will execute in the order they were queued, meaning bar(2) goes first, then bar(1).
